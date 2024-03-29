@@ -18,7 +18,7 @@ services:
     command:
       - /bin/sh
       - -c
-      - npm install && umask 000 && node_modules/.bin/nodemon -L --config .lugo/nodemon_watcher.json
+      - npm install && chmod +x .lugo/rebuild.sh && umask 000 && node_modules/.bin/nodemon -L --config .lugo/nodemon_watcher.json
     volumes:
       - ./:/app
     healthcheck:
