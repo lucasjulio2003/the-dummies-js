@@ -18,7 +18,7 @@ services:
     command:
       - /bin/sh
       - -c
-      - rm .lugo/.done || npm install && umask 000 && node_modules/.bin/tsc-watch --project .lugo/tsconfig.json --onCompilationStarted "rm -f .lugo/.done" --onSuccess "touch .lugo/.done"
+      - npm install && umask 000 && node_modules/.bin/nodemon -L --config .lugo/nodemon_watcher.json
     volumes:
       - ./:/app
     healthcheck:
