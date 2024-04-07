@@ -15,13 +15,20 @@ var MyBot = /** @class */ (function () {
             var orders = [];
             var me = inspector.getMe();
             var ballPosition = inspector.getBall().getPosition();
-            var ballRegion = this.mapper.getRegionFromPoint(ballPosition);
-            var myRegion = this.mapper.getRegionFromPoint(me.getPosition());
+            // const ballRegion = this.mapper.getRegionFromPoint(ballPosition)
+            // const myRegion = this.mapper.getRegionFromPoint(me.getPosition())
             // by default, I will stay at my tactic position
             var moveDestination = (0, settings_1.getMyExpectedPosition)(inspector, this.mapper, this.number);
             // if the ball is max 2 blocks away from me, I will move toward the ball
-            if (this.isINear(myRegion, ballRegion)) {
+            // if (this.isINear(myRegion, ballRegion)) {
+            //     moveDestination = ballPosition
+            // }
+            if (this.shouldIHelp(me, inspector.getMyTeamPlayers(), ballPosition, 2)) {
+                console.log("I'm helping!");
                 moveDestination = ballPosition;
+            }
+            else {
+                console.log("I'm not helping!");
             }
             var moveOrder = inspector.makeOrderMoveMaxSpeed(moveDestination);
             // Try other ways to create a move Oorder
@@ -41,12 +48,15 @@ var MyBot = /** @class */ (function () {
             var orders = [];
             var me = inspector.getMe();
             var ballPosition = inspector.getBall().getPosition();
-            var ballRegion = this.mapper.getRegionFromPoint(ballPosition);
-            var myRegion = this.mapper.getRegionFromPoint(me.getPosition());
+            // const ballRegion = this.mapper.getRegionFromPoint(ballPosition)
+            // const myRegion = this.mapper.getRegionFromPoint(me.getPosition())
             // by default, I will stay at my tactic position
             var moveDestination = (0, settings_1.getMyExpectedPosition)(inspector, this.mapper, this.number);
             // if the ball is max 2 blocks away from me, I will move toward the ball
-            if (this.isINear(myRegion, ballRegion)) {
+            // if (this.isINear(myRegion, ballRegion)) {
+            //     moveDestination = ballPosition
+            // }
+            if (this.shouldIHelp(me, inspector.getMyTeamPlayers(), ballPosition, 2)) {
                 moveDestination = ballPosition;
             }
             var moveOrder = inspector.makeOrderMoveMaxSpeed(moveDestination);
@@ -86,8 +96,12 @@ var MyBot = /** @class */ (function () {
             var orders = [];
             var me = inspector.getMe();
             var ballHolderPosition = inspector.getBall().getPosition();
-            var myOrder = inspector.makeOrderMoveMaxSpeed(ballHolderPosition);
-            orders.push(myOrder);
+            // by default, I will stay at my tactic position
+            var moveDestination = (0, settings_1.getMyExpectedPosition)(inspector, this.mapper, this.number);
+            if (this.shouldIHelp(me, inspector.getMyTeamPlayers(), ballHolderPosition, 2)) {
+                moveDestination = ballHolderPosition;
+            }
+            orders.push(inspector.makeOrderMoveMaxSpeed(moveDestination));
             return orders;
         }
         catch (e) {
@@ -122,6 +136,22 @@ var MyBot = /** @class */ (function () {
         var colDist = myPosition.getCol() - targetPosition.getCol();
         var rowDist = myPosition.getRow() - targetPosition.getRow();
         return Math.hypot(colDist, rowDist) <= minDist;
+    };
+    MyBot.prototype.shouldIHelp = function (me, myTeam, targetPosition, maxHelpers) {
+        var nearestPlayers = 0;
+        var myDistance = lugo4node_1.geo.distanceBetweenPoints(me.getPosition(), targetPosition);
+        // console.log(`My distance : ${myDistance}`);
+        for (var _i = 0, myTeam_1 = myTeam; _i < myTeam_1.length; _i++) {
+            var teamMate = myTeam_1[_i];
+            if (teamMate.getNumber() != me.getNumber() && lugo4node_1.geo.distanceBetweenPoints(teamMate.getPosition(), targetPosition) < myDistance) {
+                nearestPlayers++;
+                // console.log(`Mate distance : ${geo.distanceBetweenPoints(teamMate.getPosition(), targetPosition)}`);
+                if (nearestPlayers >= maxHelpers) {
+                    return false;
+                }
+            }
+        }
+        return true;
     };
     return MyBot;
 }());
